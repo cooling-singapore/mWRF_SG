@@ -1,7 +1,10 @@
-### WRF-ARW Modeling System  ###
+# mWRF_SG Modified WRF Modelling System for Singapore
 
-We request that all new users of WRF please register. This allows us to better determine how to support and develop the model. Please register using this form:[http://www2.mmm.ucar.edu/wrf/users/download/wrf-regist.php](http://www2.mmm.ucar.edu/wrf/users/download/wrf-regist.php).
+mWRF_SG is a modified WRF model under active development by the Cooling Singapore project (CS) for meso-scale urban climate simulations. For this purpose, the CS team will incorporate various extensions to original WRF code.
 
+This repository contains the mWRF_SG code as well as any technical documentation explaining the various modifications made to the WRF code.
+
+## WRF-ARW Modelling System
 For an overview of the WRF modeling system, along with information regarding downloads, user support, documentation, publications, and additional resources, please see the WRF Model Users' Web Site: [http://www2.mmm.ucar.edu/wrf/users/](http://www2.mmm.ucar.edu/wrf/users/).
  
 Information regarding WRF Model citations (including a DOI) can be found here: [http://www2.mmm.ucar.edu/wrf/users/citing_wrf.html](http://www2.mmm.ucar.edu/wrf/users/citing_wrf.html).
