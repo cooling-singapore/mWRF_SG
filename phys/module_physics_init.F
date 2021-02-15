@@ -2499,9 +2499,11 @@ CONTAINS
    USE module_sf_myjsfc
    USE module_sf_qnsesfc
    USE module_sf_noahdrv
-   USE module_sf_noahlsm, only : LOW_DENSITY_RESIDENTIAL, HIGH_DENSITY_RESIDENTIAL, HIGH_INTENSITY_INDUSTRIAL
+   USE module_sf_noahlsm, only :LCZ_1,LCZ_2,LCZ_3,LCZ_4,LCZ_5,LCZ_6,LCZ_7,LCZ_8,LCZ_9,LCZ_10,LCZ_11
    USE module_sf_noahmpdrv
-   USE noahmp_tables, ONLY: LOW_DENSITY_RESIDENTIAL_TABLE, HIGH_DENSITY_RESIDENTIAL_TABLE, HIGH_INTENSITY_INDUSTRIAL_TABLE
+   USE noahmp_tables, ONLY: LCZ_1_TABLE,LCZ_2_TABLE,LCZ_3_TABLE,LCZ_4_TABLE,LCZ_5_TABLE,LCZ_6_TABLE,   &
+                            LCZ_7_TABLE,LCZ_8_TABLE,LCZ_9_TABLE,LCZ_10_TABLE,LCZ_11_TABLE
+
 #ifdef WRF_USE_CLM
    USE module_sf_clm, only : clminit
 #endif
@@ -3094,10 +3096,7 @@ CONTAINS
                 
                 CALL urban_var_init(ISURBAN,TSK,TSLB,TMN,IVGTYP,                     & !urban
                               ims,ime,jms,jme,kms,kme,num_soil_layers,               & !urban
-!                              num_roof_layers,num_wall_layers,num_road_layers, & !urban
-                              LOW_DENSITY_RESIDENTIAL,                       &
-                              HIGH_DENSITY_RESIDENTIAL,                      &
-                              HIGH_INTENSITY_INDUSTRIAL,                       &
+                              LCZ_1,LCZ_2,LCZ_3,LCZ_4,LCZ_5,LCZ_6,LCZ_7,LCZ_8,LCZ_9,LCZ_10,LCZ_11, &  !urban
                               restart,sf_urban_physics,                        & !urban
                               XXXR_URB2D,XXXB_URB2D,XXXG_URB2D,XXXC_URB2D,     & !urban
                               TR_URB2D,TB_URB2D,TG_URB2D,TC_URB2D,QC_URB2D,    & !urban
@@ -3211,9 +3210,17 @@ CALL lsm_mosaic_init(IVGTYP,config_flags%ISWATER,config_flags%ISURBAN,config_fla
                                 sf_urban_physics)
                 CALL urban_var_init(ISURBAN,TSK,TSLB,TMN,IVGTYP,               & !urban
                               ims,ime,jms,jme,kms,kme,num_soil_layers,         & !urban
-                              LOW_DENSITY_RESIDENTIAL_TABLE,                   &
-		              HIGH_DENSITY_RESIDENTIAL_TABLE,                  &
-		              HIGH_INTENSITY_INDUSTRIAL_TABLE,                 &
+                              LCZ_1_TABLE,                   &
+                              LCZ_2_TABLE,                  &
+                              LCZ_3_TABLE,                 &
+                              LCZ_4_TABLE,                   &
+                              LCZ_5_TABLE,                  &
+                              LCZ_6_TABLE,                 &
+                              LCZ_7_TABLE,                   &
+                              LCZ_8_TABLE,                  &
+                              LCZ_9_TABLE,                 &
+                              LCZ_10_TABLE,                   &
+                              LCZ_11_TABLE,               &
                               restart,sf_urban_physics,                        & !urban
                               XXXR_URB2D,XXXB_URB2D,XXXG_URB2D,XXXC_URB2D,     & !urban
                               TR_URB2D,TB_URB2D,TG_URB2D,TC_URB2D,QC_URB2D,    & !urban

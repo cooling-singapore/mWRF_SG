@@ -55,8 +55,11 @@ CONTAINS
     USE MODULE_SF_NOAHMPLSM
 !    USE MODULE_SF_NOAHMPLSM, only: noahmp_options, NOAHMP_SFLX, noahmp_parameters
     USE module_sf_noahmp_glacier
-    USE NOAHMP_TABLES, ONLY: ISICE_TABLE, CO2_TABLE, O2_TABLE, DEFAULT_CROP_TABLE, ISCROP_TABLE, ISURBAN_TABLE, NATURAL_TABLE, &
-                             LOW_DENSITY_RESIDENTIAL_TABLE, HIGH_DENSITY_RESIDENTIAL_TABLE, HIGH_INTENSITY_INDUSTRIAL_TABLE
+     USE NOAHMP_TABLES, ONLY: ISICE_TABLE, CO2_TABLE, O2_TABLE,DEFAULT_CROP_TABLE, ISCROP_TABLE, ISURBAN_TABLE, NATURAL_TABLE, &
+                             LCZ_1_TABLE,LCZ_2_TABLE,LCZ_3_TABLE,LCZ_4_TABLE,LCZ_5_TABLE,LCZ_6_TABLE,&
+                             LCZ_7_TABLE,LCZ_8_TABLE,LCZ_9_TABLE,LCZ_10_TABLE,LCZ_11_TABLE
+
+
     USE module_sf_urban,    only: IRI_SCHEME
     USE module_ra_gfdleta,  only: cal_mon_day
 !----------------------------------------------------------------
@@ -670,9 +673,11 @@ CONTAINS
           SOILTYP = 7
        ENDIF
 
-       IF( IVGTYP(I,J) == ISURBAN_TABLE                  .or. IVGTYP(I,J) == LOW_DENSITY_RESIDENTIAL_TABLE .or. &
-           IVGTYP(I,J) == HIGH_DENSITY_RESIDENTIAL_TABLE .or. IVGTYP(I,J) == HIGH_INTENSITY_INDUSTRIAL_TABLE ) THEN
-
+         IF( IVGTYP(I,J) == ISURBAN_TABLE .or. &
+         IVGTYP(I,J) == LCZ_1_TABLE .or. IVGTYP(I,J) == LCZ_2_TABLE.or.IVGTYP(I,J) == LCZ_3_TABLE .or.  & !urban
+         IVGTYP(I,J) == LCZ_4_TABLE .or. IVGTYP(I,J) == LCZ_5_TABLE.or.IVGTYP(I,J) == LCZ_6_TABLE .or.  & !urban
+         IVGTYP(I,J) == LCZ_7_TABLE .or. IVGTYP(I,J) == LCZ_8_TABLE.or.IVGTYP(I,J) == LCZ_9_TABLE .or.  & !urban
+         IVGTYP(I,J) == LCZ_10_TABLE  .or. IVGTYP(I,J) == LCZ_11_TABLE)THEN!urb
          IF(SF_URBAN_PHYSICS == 0 ) THEN
            VEGTYP = ISURBAN_TABLE
          ELSE
@@ -724,8 +729,11 @@ CONTAINS
 !=== hydrological processes for vegetation in urban model ===
 !=== irrigate vegetaion only in urban area, MAY-SEP, 9-11pm
 
-       IF( IVGTYP(I,J) == ISURBAN_TABLE                  .or. IVGTYP(I,J) == LOW_DENSITY_RESIDENTIAL_TABLE .or. &
-           IVGTYP(I,J) == HIGH_DENSITY_RESIDENTIAL_TABLE .or. IVGTYP(I,J) == HIGH_INTENSITY_INDUSTRIAL_TABLE ) THEN
+      IF( IVGTYP(I,J) == ISURBAN_TABLE .or. &
+          IVGTYP(I,J) == LCZ_1_TABLE .or. IVGTYP(I,J) == LCZ_2_TABLE.or.IVGTYP(I,J) == LCZ_3_TABLE .or.  & !urban
+          IVGTYP(I,J) == LCZ_4_TABLE .or. IVGTYP(I,J) == LCZ_5_TABLE.or.IVGTYP(I,J) == LCZ_6_TABLE .or.  & !urban
+          IVGTYP(I,J) == LCZ_7_TABLE .or. IVGTYP(I,J) == LCZ_8_TABLE.or.IVGTYP(I,J) == LCZ_9_TABLE .or.  & !urban
+         IVGTYP(I,J) == LCZ_10_TABLE  .or. IVGTYP(I,J) == LCZ_11_TABLE  ) THEN                             !urb
 
          IF(SF_URBAN_PHYSICS > 0 .AND. IRI_SCHEME == 1 ) THEN
 	     SOLAR_TIME = (JULIAN - INT(JULIAN))*24 + XLONG(I,J)/15.0
@@ -1069,9 +1077,12 @@ SUBROUTINE TRANSFER_MP_PARAMETERS(VEGTYPE,SOILTYPE,SLOPETYPE,SOILCOLOR,CROPTYPE,
   parameters%EBLFOREST = EBLFOREST_TABLE
 
   parameters%URBAN_FLAG = .FALSE.
-  IF( VEGTYPE == ISURBAN_TABLE                  .or. VEGTYPE == LOW_DENSITY_RESIDENTIAL_TABLE  .or. &
-      VEGTYPE == HIGH_DENSITY_RESIDENTIAL_TABLE .or. VEGTYPE == HIGH_INTENSITY_INDUSTRIAL_TABLE ) THEN
-     parameters%URBAN_FLAG = .TRUE.
+    IF( VEGTYPE == ISURBAN_TABLE .or. &
+        VEGTYPE  == LCZ_1_TABLE .or. VEGTYPE  == LCZ_2_TABLE .or. VEGTYPE==LCZ_3_TABLE .or.  & !urban
+        VEGTYPE == LCZ_4_TABLE .or. VEGTYPE  == LCZ_5_TABLE .or. VEGTYPE==LCZ_6_TABLE .or.  & !urban
+        VEGTYPE  == LCZ_7_TABLE .or. VEGTYPE  == LCZ_8_TABLE .or. VEGTYPE==LCZ_9_TABLE .or.  & !urban
+        VEGTYPE  == LCZ_10_TABLE  .or. VEGTYPE  == LCZ_11_TABLE  ) THEN  !urb
+    parameters%URBAN_FLAG = .TRUE.
   ENDIF
 
 !------------------------------------------------------------------------------------------!
@@ -2845,8 +2856,7 @@ JLOOP : DO J = jts, jte
 ILOOP : DO I = its, ite
 
 
-  IF( IVGTYP(I,J) == ISURBAN_TABLE .or. IVGTYP(I,J) == 31 .or. &
-      IVGTYP(I,J) == 32 .or. IVGTYP(I,J) == 33 ) THEN
+  IF( IVGTYP(I,J) == ISURBAN_TABLE .or. IVGTYP(I,J).gt.30) THEN
 
     UTYPE_URB = UTYPE_URB2D(I,J) !urban type (low, high or industrial)
 
@@ -3207,7 +3217,7 @@ IF((SF_URBAN_PHYSICS == 2).OR.(SF_URBAN_PHYSICS == 3))THEN
     lh(i,j)       = qfx(i,j)*xlv
     hfx(i,j)      = hfx_urb(i,j)                         + (1-frc_urb2d(i,j))*hfx_rural(i,j)      ![W/m/m]
     sh_urb2d(i,j) = hfx_urb(i,j)/frc_urb2d(i,j)
-    lh_urb2d(i,j) = qfx_urb(i,j)*xlv/frc_urb2d(i,j)
+    lh_urb2d(i,j) = qfx_urb(i,j)*xlv
     g_urb2d(i,j)  = grdflx_urb(i,j)
     rn_urb2d(i,j) = rs_abs_urb(i,j)+emiss_urb(i,j)*glw(i,j)-rl_up_urb(i,j)
     ust(i,j)      = (umom**2.+vmom**2.)**.25

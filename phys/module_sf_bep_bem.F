@@ -255,6 +255,10 @@ use module_wrf_error
       real drst(ndm)            ! street directions for the current urban class
       real ss(nz_um)            ! Probability to have a building with height h
       real pb(nz_um)            ! Probability to have a building with an height equal
+      real alp
+      real cdrag(nz_um)
+      real cdrageps(nz_um)
+
 !
 !New roughness and buildings parameters
 !
@@ -630,6 +634,10 @@ use module_wrf_error
         if (FRC_URB2D(ix,iy).gt.0.) then    ! Calling BEP only for existing urban classes.
 	
          iurb=UTYPE_URB2D(ix,iy)
+         if(iurb.gt.10.or.iurb.lt.1)then
+          write(*,*)'problem in', ix,iy,frc_urb2d(ix,iy),iurb
+          stop
+         endif
 
          hi_urb1D=0.
          do iz_u=1,nz_um
@@ -1204,6 +1212,9 @@ use module_wrf_error
       real drst(ndm)            ! Street directions for the current urban class
       real ss(nz_um)          ! Probability to have a building with height h
       real pb(nz_um)          ! Probability to have a building with an height equal
+      real cdrag(nz_um)
+      real cdrageps(nz_um)
+      real alp
 
 ! Solar radiation at each level of the "urban grid"
 
@@ -1716,8 +1727,21 @@ use module_wrf_error
              
         
 ! Compute the implicit and explicit components of the sources or sinks on the "urban grid"
-     
-      call buildings(iurb,ndu,nzu,z0,ua_u,va_u,                               & 
+       do iz=1,nz_um
+       alp=0.
+       do id=1,ndu
+        alp=alp+bs(id)/(ws(id)+bs(id))*pb(iz)
+       enddo
+       alp=alp/ndu
+       if(alp.lt.0.29)then
+        cdrag(iz)=3.32*alp**0.47
+       else
+        cdrag(iz)=1.85
+       endif
+       cdrageps(iz)=cdrag(iz)*(31.26*exp(-29.53*alp)+8.233*exp(-2.145*alp))
+     enddo
+ 
+      call buildings(iurb,ndu,nzu,z0,cdrag,cdrageps,ua_u,va_u,                               & 
                      pt_u,pt0_u,ptg,ptr,da_u,ptw,ptwin,pwin_u(iurb),drst,     &                      
                      uva_u,vva_u,uvb_u,vvb_u,tva_u,tvb_u,evb_u,qvb_u,qhb_u,   & 
                      uhb_u,vhb_u,thb_u,ehb_u,ss,dt,sfw,sfg,sfr,               &
@@ -2276,7 +2300,7 @@ use module_wrf_error
 ! ===6=8===============================================================72     
 ! ===6=8===============================================================72  
 
-      subroutine buildings(iurb,nd,nz,z0,ua_u,va_u,pt_u,pt0_u,       &
+      subroutine buildings(iurb,nd,nz,z0,cdrag,cdrageps,ua_u,va_u,pt_u,pt0_u,       &
                         ptg,ptr,da_u,ptw,ptwin,pwin,                 &
                         drst,uva_u,vva_u,uvb_u,vvb_u,                &
                         tva_u,tvb_u,evb_u,qvb_u,qhb_u,               &
@@ -2431,7 +2455,7 @@ use module_wrf_error
                         uva_tmp,vva_tmp,                                    &   
                         uvb_tmp,vvb_tmp,                                    &   
                         sfw(2*id-1,iz,ibui),sfwin(2*id-1,iz,ibui),          &   
-                        evb_tmp,drst(id),dt)      
+                        evb_tmp,drst(id),dt,cdrag(iz),cdrageps(iz))      
    
             if (pb(iz+1).gt.0.) then
 
@@ -2456,7 +2480,7 @@ use module_wrf_error
                         uva_tmp,vva_tmp,                           &    
                         uvb_tmp,vvb_tmp,                           &    
                         sfw(2*id,iz,ibui),sfwin(2*id,iz,ibui),     &   
-                        evb_tmp,drst(id),dt) 
+                        evb_tmp,drst(id),dt,cdrag(iz),cdrageps(iz)) 
 
             if (pb(iz+1).gt.0.) then
 
@@ -3499,7 +3523,7 @@ use module_wrf_error
 ! ===6=8===============================================================72
   
       subroutine flux_wall(ua,va,pt,da,ptw,ptwin,uva,vva,uvb,vvb,  &
-                           sfw,sfwin,evb,drst,dt)         
+                           sfw,sfwin,evb,drst,dt,cdrag,cdrageps)         
        
 ! ----------------------------------------------------------------------
 ! This routine computes the surface sources or sinks of momentum, tke,
@@ -3517,6 +3541,8 @@ use module_wrf_error
       real ua                   ! wind speed
       real va                   ! wind speed
       real dt                   !time step
+      real cdrag
+      real cdrageps
 
 ! OUTPUT:
 ! ------
